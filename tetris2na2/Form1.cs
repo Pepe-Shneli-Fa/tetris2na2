@@ -26,7 +26,6 @@ namespace tetris2na2
                 int rows = Shape.GetLength(0);
                 int cols = Shape.GetLength(1);
 
-                // Создаем новый массив с переставленными размерами
                 int[,] rotated = new int[cols, rows];
 
                 for (int i = 0; i < rows; i++)
@@ -46,19 +45,19 @@ namespace tetris2na2
 
                 switch (type)
                 {
-                    case 0: // I
+                    case 0: 
                         return new Tetromino(new int[,] { { 1, 1, 1, 1 } }, Color.Cyan);
-                    case 1: // O
+                    case 1: 
                         return new Tetromino(new int[,] { { 1, 1 }, { 1, 1 } }, Color.Yellow);
-                    case 2: // T
+                    case 2:
                         return new Tetromino(new int[,] { { 0, 1, 0 }, { 1, 1, 1 } }, Color.Purple);
-                    case 3: // S
+                    case 3: 
                         return new Tetromino(new int[,] { { 0, 1, 1 }, { 1, 1, 0 } }, Color.Green);
-                    case 4: // Z
+                    case 4: 
                         return new Tetromino(new int[,] { { 1, 1, 0 }, { 0, 1, 1 } }, Color.Red);
-                    case 5: // J
+                    case 5: 
                         return new Tetromino(new int[,] { { 1, 0, 0 }, { 1, 1, 1 } }, Color.Blue);
-                    case 6: // L
+                    case 6: 
                         return new Tetromino(new int[,] { { 0, 0, 1 }, { 1, 1, 1 } }, Color.Orange);
                     default:
                         return new Tetromino(new int[,] { { 1 } }, Color.White);
@@ -68,28 +67,21 @@ namespace tetris2na2
         private int[,] field1 = new int[10, 20];
         private int[,] field2 = new int[10, 20];
 
-        // Текущие фигуры
         private Tetromino currentPiece1;
         private Tetromino currentPiece2;
 
-        // Следующие фигуры
         private Tetromino nextPiece1;
         private Tetromino nextPiece2;
 
-        // Счет
         private int score1 = 0;
         private int score2 = 0;
 
-        // Таймер игры - ЯВНО УКАЗЫВАЕМ System.Windows.Forms.Timer
         private System.Windows.Forms.Timer gameTimer;
 
-        // Флаг паузы
         private bool isPaused = false;
 
-        // Флаг окончания игры
         private bool gameOver = false;
 
-        // Random для генерации фигур
         private Random random = new Random();
         public Form1()
         {
@@ -122,11 +114,9 @@ namespace tetris2na2
             gameTimer.Interval = 500;
             gameTimer.Tick += GameTimer_Tick;
 
-            // Включаем обработку клавиш
             this.KeyPreview = true;
             this.KeyDown += Form1_KeyDown;
 
-            // Запускаем новую игру
             NewGame();
         }
 
@@ -155,7 +145,6 @@ namespace tetris2na2
         {
             if (this.FormBorderStyle == FormBorderStyle.None)
             {
-                // Возвращаем из полноэкранного режима
                 this.FormBorderStyle = FormBorderStyle.FixedSingle;
                 this.WindowState = FormWindowState.Normal;
                 this.TopMost = false;
@@ -163,14 +152,12 @@ namespace tetris2na2
             }
             else
             {
-                // Переходим в полноэкранный режим
                 this.FormBorderStyle = FormBorderStyle.None;
                 this.WindowState = FormWindowState.Maximized;
-                this.TopMost = true; // Поверх всех окон
+                this.TopMost = true; 
                 lblStatus.Text = "Полноэкранный режим (T)";
             }
 
-            // Перерисовываем форму
             this.Invalidate();
 
         panelGame1.Invalidate();
@@ -325,18 +312,17 @@ namespace tetris2na2
         {
             e.Handled = true;
 
-            // ГЛОБАЛЬНЫЕ КЛАВИШИ (работают всегда)
-            if (e.KeyCode == Keys.F2) // Новая игра
+            if (e.KeyCode == Keys.F2) 
             {
                 NewGame();
                 return;
             }
-            if (e.KeyCode == Keys.P) // Пауза
+            if (e.KeyCode == Keys.P) 
             {
                 btnPause.PerformClick();
                 return;
             }
-            if (e.KeyCode == Keys.Escape) // Выход
+            if (e.KeyCode == Keys.Escape) 
             {
                 btnExit.PerformClick();
                 return;
@@ -347,23 +333,21 @@ namespace tetris2na2
                 return;
             }
 
-            // Если игра окончена или на паузе - не обрабатываем игровые клавиши
             if (gameOver || isPaused) return;
 
-            // ===== ИГРОК 1 (WASD + Пробел) =====
-            if (e.KeyCode == Keys.A) // Влево
+            if (e.KeyCode == Keys.A)
             {
                 currentPiece1.X--;
                 if (Collision(field1, currentPiece1))
                     currentPiece1.X++;
             }
-            else if (e.KeyCode == Keys.D) // Вправо
+            else if (e.KeyCode == Keys.D) 
             {
                 currentPiece1.X++;
                 if (Collision(field1, currentPiece1))
                     currentPiece1.X--;
             }
-            else if (e.KeyCode == Keys.W) // Поворот
+            else if (e.KeyCode == Keys.W)
             {
                 currentPiece1.Rotate();
                 if (Collision(field1, currentPiece1))
@@ -383,69 +367,61 @@ namespace tetris2na2
                     }
                 }
             }
-            else if (e.KeyCode == Keys.S) // Вниз
+            else if (e.KeyCode == Keys.S)
             {
                 MovePieceDown(field1, currentPiece1);
             }
-            else if (e.KeyCode == Keys.Space) // Сброс
+            else if (e.KeyCode == Keys.Space) 
             {
                 while (MovePieceDown(field1, currentPiece1)) { }
                 PlacePiece(field1, ref currentPiece1, ref nextPiece1, ref score1);
             }
 
-            // ===== ИГРОК 2 (IJKL + H) =====
-            else if (e.KeyCode == Keys.J) // Влево
+            else if (e.KeyCode == Keys.J)
             {
                 currentPiece2.X--;
                 if (Collision(field2, currentPiece2))
                     currentPiece2.X++;
             }
-            else if (e.KeyCode == Keys.L) // Вправо
+            else if (e.KeyCode == Keys.L) 
             {
                 currentPiece2.X++;
                 if (Collision(field2, currentPiece2))
                     currentPiece2.X--;
             }
-            else if (e.KeyCode == Keys.I) // Поворот
+            else if (e.KeyCode == Keys.I) 
             {
-                // Сохраняем текущее состояние
                 int oldX = currentPiece2.X;
                 int[,] oldShape = currentPiece2.Shape;
 
-                // Пробуем повернуть
                 currentPiece2.Rotate();
 
-                // Корректируем позицию, если фигура вылезла за левый край
                 while (currentPiece2.X < 0)
                 {
                     currentPiece2.X++;
                 }
 
-                // Корректируем позицию, если фигура вылезла за правый край
                 while (currentPiece2.X + currentPiece2.Shape.GetLength(0) > 10)
                 {
                     currentPiece2.X--;
                 }
 
-                // Проверяем столкновение с другими блоками
                 if (Collision(field2, currentPiece2))
                 {
-                    // Возвращаем как было
                     currentPiece2.Shape = oldShape;
                     currentPiece2.X = oldX;
                 }
             }
-            else if (e.KeyCode == Keys.K) // Вниз
+            else if (e.KeyCode == Keys.K) 
             {
                 MovePieceDown(field2, currentPiece2);
             }
-            else if (e.KeyCode == Keys.H) // Сброс
+            else if (e.KeyCode == Keys.H) 
             {
                 while (MovePieceDown(field2, currentPiece2)) { }
                 PlacePiece(field2, ref currentPiece2, ref nextPiece2, ref score2);
             }
 
-            // Перерисовываем
             panelGame1.Invalidate();
             panelGame2.Invalidate();
             panelNext1.Invalidate();
